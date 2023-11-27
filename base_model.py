@@ -41,11 +41,11 @@ class BaseModel(torch.nn.Module):
             optimizer.step()
 
             if iteration % 250 == 0:
-                eval_loss = torch.mean(torch.abs(pred - labels))
-                best_loss = min(best_loss, eval_loss.item())
+                avg_error = torch.mean(torch.abs(pred - labels))
+                best_loss = min(best_loss, avg_error.item())
 
-                scheduler.step(eval_loss)
-                print(f"Iteration {iteration}, Loss: {math.sqrt(loss.item()):.4f}, Mean error: {eval_loss:.2f}")
+                scheduler.step(avg_error)
+                print(f"Iteration {iteration}, Loss: {math.sqrt(loss.item()):.4f}, Mean error: {avg_error:.2f}")
 
                 if optimizer.param_groups[0]['lr'] < 1e-5:
                     print("Terminating early because LR < 1e-6")

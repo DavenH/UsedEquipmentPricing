@@ -8,24 +8,22 @@ from atv_model import AtvModel
 from excavator_model import ExcavatorModel
 from trailer_model import TrailerModel
 
-# Constants and configurations
-DEVICE = torch.device("cuda:0")
-LEARNING_RATE = 0.01
-ITERATIONS = 50000
+device = torch.device("cuda:0")
+lr = 0.01
+epochs = 50000
 
 class TsvDataset:
     def __init__(self, filename: str, label_column: int):
 
         # Load data
         np_data = np.genfromtxt(fname=filename, skip_header=1, delimiter="\t", filling_values=0)
-        self.data = torch.from_numpy(np_data).to(DEVICE)
+        self.data = torch.from_numpy(np_data).to(device)
         self.labels = self.data[:, label_column]
         self.pd_data = pd.read_csv(filename, sep="\t")
 
     def get_labels(self):
         return self.labels
 
-# subject = 'trailer'
 subject = 'atv' # 'excavator', 'atv'
 
 # dataset = TsvDataset("data/excavator.tsv", 15)
@@ -34,10 +32,10 @@ subject = 'atv' # 'excavator', 'atv'
 # model = TrailerModel(f'config/trailer/config_{config_num}.json')
 dataset = TsvDataset("data/atv.tsv", 0)
 model = AtvModel('config/atv/config_811.json')
-model.to(device=DEVICE)
+model.to(device=device)
 
-optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+optimizer = optim.Adam(model.parameters(), lr=lr)
 scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5, verbose=True)
-best_loss = model.fit(optimizer, scheduler, dataset.data, dataset.labels, ITERATIONS)
+best_loss = model.fit(optimizer, scheduler, dataset.data, dataset.labels, epochs)
 
 model.save_params(f"config/{subject}", best_loss)
